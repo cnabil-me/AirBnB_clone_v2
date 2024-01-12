@@ -1,36 +1,49 @@
 #!/usr/bin/python3
-"""
-    deploy static
-"""
-# import time
-# from fabric.context_managers import cd
-from fabric.api import local
-from fabric.api import get
-from fabric.api import put
-from fabric.api import reboot
-from fabric.api import run
-from fabric.api import sudo
+# Fabfile to distribute an archive to a web server.
+import os.path
 from fabric.api import env
-env.hosts = ['34.75.49.246', '104.196.144.160']
+from fabric.api import put
+from fabric.api import run
+
+env.hosts = ["104.196.168.90", "35.196.46.172"]
 
 
 def do_deploy(archive_path):
-    """ deploy my archive tgz into my servers """
-    try:
-        put(archive_path, '/tmp/')
-        c1 = 'mkdir -p /data/web_static/releases/{}/'
-        run(c1.format(archive_path[9:-4]))
-        c2 = 'tar -xzf /tmp/{} -C /data/web_static/releases/{}/'
-        run(c2.format(archive_path[9:], archive_path[9:-4]))
-        run('rm /tmp/{}'.format(archive_path[9:]))
-        c3 = 'mv /data/web_static/releases/{}/web_static/* \
-              /data/web_static/releases/{}/'
-        run(c3.format(archive_path[9:-4], archive_path[9:-4]))
-        c4 = 'rm -rf  /data/web_static/releases/{}/web_static/'
-        run(c4.format(archive_path[9:-4]))
-        run('rm -rf /data/web_static/current')
-        c5 = 'ln -s /data/web_static/releases/{}/ {}'
-        run(c5.format(archive_path[9:-4], '/data/web_static/current'))
-        return True
-    except:
+    """Distributes an archive to a web server.
+
+    Args:
+        archive_path (str): The path of the archive to distribute.
+    Returns:
+        If the file doesn't exist at archive_path or an error occurs - False.
+        Otherwise - True.
+    """
+    if os.path.isfile(archive_path) is False:
         return False
+    file = archive_path.split("/")[-1]
+    name = file.split(".")[0]
+
+    if put(archive_path, "/tmp/{}".format(file)).failed is True:
+        return False
+    if run("rm -rf /data/web_static/releases/{}/".
+           format(name)).failed is True:
+        return False
+    if run("mkdir -p /data/web_static/releases/{}/".
+           format(name)).failed is True:
+        return False
+    if run("tar -xzf /tmp/{} -C /data/web_static/releases/{}/".
+           format(file, name)).failed is True:
+        return False
+    if run("rm /tmp/{}".format(file)).failed is True:
+        return False
+    if run("mv /data/web_static/releases/{}/web_static/* "
+           "/data/web_static/releases/{}/".format(name, name)).failed is True:
+        return False
+    if run("rm -rf /data/web_static/releases/{}/web_static".
+           format(name)).failed is True:
+        return False
+    if run("rm -rf /data/web_static/current").failed is True:
+        return False
+    if run("ln -s /data/web_static/releases/{}/ /data/web_static/current".
+           format(name)).failed is True:
+        return False
+    return True
