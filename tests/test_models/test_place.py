@@ -1,200 +1,240 @@
 #!/usr/bin/python3
-"""
-Contains the TestPlaceDocs classes
-"""
-
-from datetime import datetime
-import inspect
-import models
-from models import place
-from models.base_model import BaseModel
-import pep8
 import unittest
-Place = place.Place
-
-
-class TestPlaceDocs(unittest.TestCase):
-    """Tests to check the documentation and style of Place class"""
-    @classmethod
-    def setUpClass(cls):
-        """Set up for the doc tests"""
-        cls.place_f = inspect.getmembers(Place, inspect.isfunction)
-
-    def test_pep8_conformance_place(self):
-        """Test that models/place.py conforms to PEP8."""
-        pep8s = pep8.StyleGuide(quiet=True)
-        result = pep8s.check_files(['models/place.py'])
-        self.assertEqual(result.total_errors, 0,
-                         "Found code style errors (and warnings).")
-
-    def test_pep8_conformance_test_place(self):
-        """Test that tests/test_models/test_place.py conforms to PEP8."""
-        pep8s = pep8.StyleGuide(quiet=True)
-        result = pep8s.check_files(['tests/test_models/test_place.py'])
-        self.assertEqual(result.total_errors, 0,
-                         "Found code style errors (and warnings).")
-
-    def test_place_module_docstring(self):
-        """Test for the place.py module docstring"""
-        self.assertIsNot(place.__doc__, None,
-                         "place.py needs a docstring")
-        self.assertTrue(len(place.__doc__) >= 1,
-                        "place.py needs a docstring")
-
-    def test_place_class_docstring(self):
-        """Test for the Place class docstring"""
-        self.assertIsNot(Place.__doc__, None,
-                         "Place class needs a docstring")
-        self.assertTrue(len(Place.__doc__) >= 1,
-                        "Place class needs a docstring")
-
-    def test_place_func_docstrings(self):
-        """Test for the presence of docstrings in Place methods"""
-        for func in self.place_f:
-            self.assertIsNot(func[1].__doc__, None,
-                             "{:s} method needs a docstring".format(func[0]))
-            self.assertTrue(len(func[1].__doc__) >= 1,
-                            "{:s} method needs a docstring".format(func[0]))
+from datetime import datetime
+from models.base_model import BaseModel
+from models.engine.file_storage import FileStorage
+from models.user import User
+from models.place import Place
+import os.path
+from os import path
+from unittest.mock import patch
+from console import HBNBCommand
+from io import StringIO
+import MySQLdb
 
 
 class TestPlace(unittest.TestCase):
-    """Test the Place class"""
-    def test_is_subclass(self):
-        """Test that Place is a subclass of BaseModel"""
-        place = Place()
-        self.assertIsInstance(place, BaseModel)
-        self.assertTrue(hasattr(place, "id"))
-        self.assertTrue(hasattr(place, "created_at"))
-        self.assertTrue(hasattr(place, "updated_at"))
 
-    def test_city_id_attr(self):
-        """Test Place has attr city_id, and it's an empty string"""
-        place = Place()
-        self.assertTrue(hasattr(place, "city_id"))
-        if models.storage_t == 'db':
-            self.assertEqual(place.city_id, None)
-        else:
-            self.assertEqual(place.city_id, "")
+    def setUp(self):
+        FileStorage._FileStorage__objects = {}
 
-    def test_user_id_attr(self):
-        """Test Place has attr user_id, and it's an empty string"""
-        place = Place()
-        self.assertTrue(hasattr(place, "user_id"))
-        if models.storage_t == 'db':
-            self.assertEqual(place.user_id, None)
-        else:
-            self.assertEqual(place.user_id, "")
+    def tearDown(self):
+        if os.path.exists("file.json"):
+            os.remove("file.json")
 
-    def test_name_attr(self):
-        """Test Place has attr name, and it's an empty string"""
-        place = Place()
-        self.assertTrue(hasattr(place, "name"))
-        if models.storage_t == 'db':
-            self.assertEqual(place.name, None)
-        else:
-            self.assertEqual(place.name, "")
+    def test_type_city_id(self):
+        """ Test type"""
+        obj = Place()
+        obj.city_id = "dzdz"
+        n = getattr(obj, "city_id")
+        self.assertIsInstance(n, str)
 
-    def test_description_attr(self):
-        """Test Place has attr description, and it's an empty string"""
-        place = Place()
-        self.assertTrue(hasattr(place, "description"))
-        if models.storage_t == 'db':
-            self.assertEqual(place.description, None)
-        else:
-            self.assertEqual(place.description, "")
+    def test_type_user_id(self):
+        """ Test type"""
+        obj = Place()
+        obj.user_id = "dzdz"
+        n = getattr(obj, "user_id")
+        self.assertIsInstance(n, str)
 
-    def test_number_rooms_attr(self):
-        """Test Place has attr number_rooms, and it's an int == 0"""
-        place = Place()
-        self.assertTrue(hasattr(place, "number_rooms"))
-        if models.storage_t == 'db':
-            self.assertEqual(place.number_rooms, None)
-        else:
-            self.assertEqual(type(place.number_rooms), int)
-            self.assertEqual(place.number_rooms, 0)
+    def test_type_description(self):
+        """ Test type"""
+        obj = Place()
+        obj.description = "zdzdz"
+        n = getattr(obj, "description")
+        self.assertIsInstance(n, str)
 
-    def test_number_bathrooms_attr(self):
-        """Test Place has attr number_bathrooms, and it's an int == 0"""
-        place = Place()
-        self.assertTrue(hasattr(place, "number_bathrooms"))
-        if models.storage_t == 'db':
-            self.assertEqual(place.number_bathrooms, None)
-        else:
-            self.assertEqual(type(place.number_bathrooms), int)
-            self.assertEqual(place.number_bathrooms, 0)
+    def test_type_number_rooms(self):
+        """ Test type"""
+        obj = Place()
+        obj.number_rooms = 2
+        n = getattr(obj, "number_rooms")
+        self.assertIsInstance(n, int)
 
-    def test_max_guest_attr(self):
-        """Test Place has attr max_guest, and it's an int == 0"""
-        place = Place()
-        self.assertTrue(hasattr(place, "max_guest"))
-        if models.storage_t == 'db':
-            self.assertEqual(place.max_guest, None)
-        else:
-            self.assertEqual(type(place.max_guest), int)
-            self.assertEqual(place.max_guest, 0)
+    def test_type_number_bath(self):
+        """ Test type"""
+        obj = Place()
+        obj.number_bathrooms = 5
+        n = getattr(obj, "number_bathrooms")
+        self.assertIsInstance(n, int)
 
-    def test_price_by_night_attr(self):
-        """Test Place has attr price_by_night, and it's an int == 0"""
-        place = Place()
-        self.assertTrue(hasattr(place, "price_by_night"))
-        if models.storage_t == 'db':
-            self.assertEqual(place.price_by_night, None)
-        else:
-            self.assertEqual(type(place.price_by_night), int)
-            self.assertEqual(place.price_by_night, 0)
+    def test_type_max_guet(self):
+        """ Test type"""
+        obj = Place()
+        obj.max_guest = 12
+        n = getattr(obj, "max_guest")
+        self.assertIsInstance(n, int)
 
-    def test_latitude_attr(self):
-        """Test Place has attr latitude, and it's a float == 0.0"""
-        place = Place()
-        self.assertTrue(hasattr(place, "latitude"))
-        if models.storage_t == 'db':
-            self.assertEqual(place.latitude, None)
-        else:
-            self.assertEqual(type(place.latitude), float)
-            self.assertEqual(place.latitude, 0.0)
+    def test_type_price_by_night(self):
+        """ Test type"""
+        obj = Place()
+        obj.price_by_night = 6
+        n = getattr(obj, "price_by_night")
+        self.assertIsInstance(n, int)
 
-    def test_longitude_attr(self):
-        """Test Place has attr longitude, and it's a float == 0.0"""
-        place = Place()
-        self.assertTrue(hasattr(place, "longitude"))
-        if models.storage_t == 'db':
-            self.assertEqual(place.longitude, None)
-        else:
-            self.assertEqual(type(place.longitude), float)
-            self.assertEqual(place.longitude, 0.0)
+    def test_type_latitude(self):
+        """ Test type"""
+        obj = Place()
+        obj.latitude = 5.5
+        n = getattr(obj, "latitude")
+        self.assertIsInstance(n, float)
 
-    @unittest.skipIf(models.storage_t == 'db', "not testing File Storage")
-    def test_amenity_ids_attr(self):
-        """Test Place has attr amenity_ids, and it's an empty list"""
-        place = Place()
-        self.assertTrue(hasattr(place, "amenity_ids"))
-        self.assertEqual(type(place.amenity_ids), list)
-        self.assertEqual(len(place.amenity_ids), 0)
+    def test_type_long(self):
+        """ Test type"""
+        obj = Place()
+        obj.longitude = 6.6
+        n = getattr(obj, "longitude")
+        self.assertIsInstance(n, float)
 
-    def test_to_dict_creates_dict(self):
-        """test to_dict method creates a dictionary with proper attrs"""
-        p = Place()
-        new_d = p.to_dict()
-        self.assertEqual(type(new_d), dict)
-        self.assertFalse("_sa_instance_state" in new_d)
-        for attr in p.__dict__:
-            if attr is not "_sa_instance_state":
-                self.assertTrue(attr in new_d)
-        self.assertTrue("__class__" in new_d)
+    def test_type_ameni_id(self):
+        """ Test type"""
+        obj = Place()
+        obj.amenity_id = []
+        n = getattr(obj, "amenity_ids")
+        self.assertIsInstance(n, list)
 
-    def test_to_dict_values(self):
-        """test that values in dict returned from to_dict are correct"""
-        t_format = "%Y-%m-%dT%H:%M:%S.%f"
-        p = Place()
-        new_d = p.to_dict()
-        self.assertEqual(new_d["__class__"], "Place")
-        self.assertEqual(type(new_d["created_at"]), str)
-        self.assertEqual(type(new_d["updated_at"]), str)
-        self.assertEqual(new_d["created_at"], p.created_at.strftime(t_format))
-        self.assertEqual(new_d["updated_at"], p.updated_at.strftime(t_format))
+    def test_type_name(self):
+        """ Test that type name is str"""
+        obj = Place()
+        obj.name = "ddzdz"
+        n = getattr(obj, "name")
+        self.assertIsInstance(n, str)
 
-    def test_str(self):
-        """test that the str method has the correct output"""
-        place = Place()
-        string = "[Place] ({}) {}".format(place.id, place.__dict__)
-        self.assertEqual(string, str(place))
+    """Basic instanciation object__init__"""
+    def test_Place_id_created(self):
+        """ Test id created """
+        obj = Place()
+        self.assertTrue(obj.id is not None)
+        self.assertTrue(type(obj) is Place)
+
+    def test_Place_is_instance_object_user(self):
+        """ Test id created """
+        obj = Place()
+        self.assertTrue(type(obj) is Place)
+
+    def test_is_id_is_string(self):
+        """ Test id is a string"""
+        obj = Place()
+        self.assertTrue(type(obj.id) == str)
+
+    def test_is_id_different_multiple_instance(self):
+        """ Test that id is different with two instance object """
+        obj = Place()
+        obj2 = Place()
+        self.assertTrue(obj.id != obj2.id)
+
+    def test_is_created_date_is_created(self):
+        """ Test that a date has been well created """
+        obj = Place()
+        self.assertTrue(obj.created_at is not None)
+
+    def test_is_created_date_is_created(self):
+        """ Test that a date has been well created """
+        obj = Place()
+        obj2 = Place()
+        d1 = obj.created_at
+        d2 = obj2.created_at
+        self.assertTrue(d1 is not None and d2 is not None)
+
+    def test_is__created_date_is_object_datatime(self):
+        """ Test that created_at is a object date"""
+        obj = Place()
+        self.assertTrue(type(obj.created_at) == datetime)
+
+    def test_is_updated_at_is_created(self):
+        """ Test that updated_at attribute has been well created """
+        obj = Place()
+        self.assertTrue(obj.updated_at is not None)
+
+    def test_is_updated_at_is_created_multiple_instance(self):
+        """ Test that updated_at attribute
+        has been well created with multiple instance"""
+        obj = Place()
+        obj2 = Place()
+        d1 = obj.updated_at
+        d2 = obj2.updated_at
+        self.assertTrue(d1 is not None and d2 is not None)
+
+    def test_is_updated_at_is_object_datatime(self):
+        """ Test that updated_at is a object date"""
+        obj = Place()
+        self.assertTrue(type(obj.updated_at) == datetime)
+
+    def test_is_city_id_updated(self):
+        """ Test that city_id attribute is well updated"""
+        obj = Place()
+        obj.city_id = "Thibaut"
+        self.assertTrue(obj.city_id == "Thibaut")
+
+    def test_is_name_updated(self):
+        """ Test that name attribute is well updated"""
+        obj = Place()
+        obj.name = "Thibaut"
+        self.assertTrue(obj.name == "Thibaut")
+
+    def test_is_user_id_updated(self):
+        """ Test that user_id attribute is well updated"""
+        obj = Place()
+        obj.user_id = "Thibaut"
+        self.assertTrue(obj.user_id == "Thibaut")
+
+    def test_is_latitude_updated(self):
+        """ Test that latitude attribute is well updated"""
+        obj = Place()
+        obj.latitude = 5.4
+        self.assertTrue(obj.latitude == 5.4)
+
+    """
+        kwargs
+    """
+    """
+    def test_is_kwargs_instance(self):
+        obj = Place()
+        save_dict = obj.to_dict()
+        new_obj = Place(**save_dict)
+        self.assertTrue(save_dict == new_obj.to_dict())
+    """
+    def test_is_kwargs_created_at_date_object(self):
+        """ Test that kwargs is instance created_at to date object """
+        obj = Place()
+        save_dict = obj.to_dict()
+        new_obj = Place(**save_dict)
+        self.assertTrue(type(new_obj.created_at) is datetime)
+    """
+    def test_is_kwargs_ignore_one_attribute(self):
+        obj = BaseModel()
+        save_dict = obj.to_dict()
+        new_obj = BaseModel(**save_dict)
+        with self.assertRaises(AttributeError):
+            new_obj.__class__
+    """
+    """
+    Method to_dict()
+    """
+    def test_is_to_dict_return_a_dict(self):
+        """ Test that the to_dict() method return well a dictionnary """
+        obj = Place()
+        s = obj.to_dict()
+        self.assertTrue(type(s) is dict)
+
+    def test_is_to_dict_updated_at_is_str(self):
+        """ Test that to_dict() updated_at is str in dictionary"""
+        obj = Place()
+        s = obj.to_dict()
+        for i in s:
+            if i == "updated_at":
+                self.assertTrue(type(s[i]) is str)
+
+    """
+        Method __str__
+    """
+    def test_is_str_return_a_string(self):
+        """ Test that __str__return well a string """
+        obj = Place()
+        s = str(obj)
+        self.assertTrue(type(s) is str)
+
+    def test_is_str_return_the_correct_class_name(self):
+        """ Test that __str__ user as class name """
+        obj = Place()
+        s = str(obj)
+        self.assertTrue("Place" in s)

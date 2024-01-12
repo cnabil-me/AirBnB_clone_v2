@@ -1,28 +1,28 @@
 #!/usr/bin/python3
 """
-starts a Flask web application
+    setup 3 routes and start the app
 """
-
 from flask import Flask
 app = Flask(__name__)
 
 
 @app.route('/', strict_slashes=False)
-def index():
-    """returns Hello HBNB!"""
+def hello_hbnb():
+    """simple route"""
     return 'Hello HBNB!'
 
 
 @app.route('/hbnb', strict_slashes=False)
 def hbnb():
-    """returns HBNB"""
+    """ /hbnb route """
     return 'HBNB'
 
 
 @app.route('/c/<text>', strict_slashes=False)
-def cisfun(text):
-    """display “C ” followed by the value of the text variable"""
-    return 'C ' + text.replace('_', ' ')
+def arg1(text):
+    tmp = text.replace('_', ' ')
+    return 'C {}'.format(tmp)
+
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port='5000')
+    app.run(host='0.0.0.0', port=5000)
